@@ -1,7 +1,12 @@
+#include <iostream>
 #include "simulator.h"
 
-int main() {
-  Simulator simulator;
+int main(int argc, char* argv[]) {
+  if (argc != 2) {
+    std::cout << "Usage: " << argv[0] << " config_filename";
+    return 1;
+  }
+  Simulator simulator(argv[1]);
   simulator.Run();
   return 0;
 }

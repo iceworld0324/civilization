@@ -1,3 +1,5 @@
+#include <random>
+#include <vector>
 #include "universe.h"
 
 class CivilizationFactory {
@@ -8,24 +10,34 @@ class CivilizationFactory {
  private:
   int next_id_;
   Universe* universe_;
+  std::default_random_engine generator_;
 };
 
 class Event {
  public:
-  Event(Universe* universe, double timestamp)
-    : universe_(universe), timestamp_(timestamp) {}
-  virtual void Process() {}
+  Event(double timestamp) : timestamp_(timestamp) {}
+
+  virtual std::vector<Event> Process(Universe* universe) {}
+
+  double timestamp() { return timestamp_; }
 
  protected:
   Universe* universe_;
   double timestamp_;
 };
 
+class CompareEvents {
+ public:
+  bool operator() (const Event& a, const Event& b) {
+    return a.timestamp() < b.timestamp();
+  }
+};
+
 class CivilizationBirth : public Event {
  public:
-  CivilizationBirth(Universe* universe, double timestamp, CivilizationFactory* factory)
-    : Event(universe), factory_(factory) {}
-  void Process() override;
+  CivilizationBirth(double timestamp, CivilizationFactory* factory)
+    : Event(timestamp), factory_(factory) {}
+  std::vector<Event> Process(Universe* universe) override;
 
  private:
   CivilizationFactory* factory_;
@@ -33,9 +45,9 @@ class CivilizationBirth : public Event {
 
 class CivilizationDeath : public Event {
  public:
-  CivilizationDeath(Universe* universe, double timestamp, int civilization_id)
-    : Event(universe), civilization_id_(civilization_id) {}
-  void Process() override;
+  CivilizationDeath(double timestamp, int civilization_id)
+    : Event(timestamp), civilization_id_(civilization_id) {}
+  std::vector<Event> Process(Universe* universe) override;
 
  private:
   int civilization_id_;
