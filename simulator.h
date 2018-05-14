@@ -1,3 +1,6 @@
+#ifndef SIMULATOR_H
+#define SIMULATOR_H
+
 #include <queue>
 #include <string>
 #include "event.h"
@@ -7,9 +10,9 @@ class Config {
  public:
   Config(const std::string& config_filename);
 
-  double end_time() { return end_time_; }
-  int num_stars() { return num_stars_; }
-  double radius_universe() { return radius_universe_; }
+  double end_time() const { return end_time_; }
+  int num_stars() const { return num_stars_; }
+  double radius_universe() const { return radius_universe_; }
 
  private:
   double end_time_;
@@ -36,3 +39,5 @@ class Simulator {
   CivilizationFactory factory_;
   std::priority_queue<Event, std::vector<Event>, CompareEvents> events_;
 };
+
+#endif
