@@ -1,5 +1,5 @@
-#ifndef UNIVERSE_H
-#define UNIVERSE_H
+#ifndef UNIVERSE_H_
+#define UNIVERSE_H_
 
 #include <map>
 

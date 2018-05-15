@@ -1,9 +1,9 @@
 #include "simulator.h"
 
 #include <cstring>
-#include <iomanip>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <utility>
 
 constexpr char kSplitToken[] = ": ";
 
@@ -25,15 +25,14 @@ Config::Config(const std::string& config_filename) {
 }
 
 void Simulator::Run() {
-  std::cout << std::fixed << std::setprecision(1);
   while (time_ < config_.end_time()) {
-    Event event = events_.top();
+    const std::unique_ptr<Event>& event = events_.top();
+    time_ = event->timestamp();
+    std::cout << event->Print() << std::endl;
+    std::vector<std::unique_ptr<Event>> following_events = event->Process(&universe_);
     events_.pop();
-    time_ = event.timestamp();
-    std::cout << event << std::endl;
-    std::vector<Event> following_events = event.Process(&universe_);
-    for (const Event& following_event : following_events) {
-      events_.push(following_event);
+    for (std::unique_ptr<Event>& following_event : following_events) {
+      events_.push(std::move(following_event));
     }
   }
 }

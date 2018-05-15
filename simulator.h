@@ -1,6 +1,7 @@
-#ifndef SIMULATOR_H
-#define SIMULATOR_H
+#ifndef SIMULATOR_H_
+#define SIMULATOR_H_
 
+#include <memory>
 #include <queue>
 #include <string>
 #include "event.h"
@@ -27,7 +28,7 @@ class Simulator {
       config_(config_filename),
       universe_(config_.num_stars(), config_.radius_universe()),
       factory_() {
-    events_.push(CivilizationBirth(0.0, &factory_));
+    events_.emplace(new CivilizationBirth(0.0, &factory_));
   }
 
   void Run();
@@ -37,7 +38,8 @@ class Simulator {
   Config config_;
   Universe universe_;
   CivilizationFactory factory_;
-  std::priority_queue<Event, std::vector<Event>, CompareEvents> events_;
+  std::priority_queue<std::unique_ptr<Event>,
+      std::vector<std::unique_ptr<Event>>, CompareEvents> events_;
 };
 
 #endif

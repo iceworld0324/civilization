@@ -1,8 +1,11 @@
-#ifndef EVENT_H
-#define EVENT_H
+#ifndef EVENT_H_
+#define EVENT_H_
 
 #include <iostream>
+#include <memory>
 #include <random>
+#include <sstream>
+#include <string>
 #include <vector>
 #include "universe.h"
 
@@ -23,9 +26,10 @@ class Event {
  public:
   Event(double timestamp) : timestamp_(timestamp) {}
 
-  virtual std::vector<Event> Process(Universe* universe) {
-    return std::vector<Event>();
-  }
+  virtual std::vector<std::unique_ptr<Event>> Process(
+      Universe* universe) = 0;
+
+  virtual std::string Print();
 
   double timestamp() const { return timestamp_; }
 
@@ -36,8 +40,9 @@ class Event {
 
 class CompareEvents {
  public:
-  bool operator() (const Event& a, const Event& b) {
-    return a.timestamp() < b.timestamp();
+  bool operator() (const std::unique_ptr<Event>& a,
+      const std::unique_ptr<Event>& b) {
+    return a->timestamp() > b->timestamp();
   }
 };
 
@@ -46,9 +51,9 @@ class CivilizationBirth : public Event {
   CivilizationBirth(double timestamp, CivilizationFactory* factory)
     : Event(timestamp), factory_(factory) {}
 
-  std::vector<Event> Process(Universe* universe) override;
+  std::vector<std::unique_ptr<Event>> Process(Universe* universe);
 
-  int next_id() const { return factory_->next_id(); }
+  std::string Print();
 
  private:
   CivilizationFactory* factory_;
@@ -59,16 +64,12 @@ class CivilizationDeath : public Event {
   CivilizationDeath(double timestamp, int civilization_id)
     : Event(timestamp), civilization_id_(civilization_id) {}
 
-  std::vector<Event> Process(Universe* universe) override;
+  std::vector<std::unique_ptr<Event>> Process(Universe* universe);
 
-  int civilization_id() const { return civilization_id_; }
+  std::string Print();
 
  private:
   int civilization_id_;
 };
-
-std::ostream& operator<<(std::ostream& os, const Event& event);
-std::ostream& operator<<(std::ostream& os, const CivilizationBirth& event);
-std::ostream& operator<<(std::ostream& os, const CivilizationDeath& event);
 
 #endif
