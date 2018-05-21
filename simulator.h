@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <queue>
+#include <random>
 #include <string>
 #include "event.h"
 #include "universe.h"
@@ -14,30 +15,33 @@ class Config {
   double end_time() const { return end_time_; }
   int num_stars() const { return num_stars_; }
   double radius_universe() const { return radius_universe_; }
+  double lifespan_mean() const { return lifespan_mean_; }
+  double lifespan_stddev() const { return lifespan_stddev_; }
+  double civilization_birth_interval() const { return civilization_birth_interval_; }
 
  private:
   double end_time_;
   int num_stars_;
   double radius_universe_;
+  double lifespan_mean_;
+  double lifespan_stddev_;
+  double civilization_birth_interval_;
 };
 
 class Simulator {
  public:
-  Simulator(const std::string& config_filename)
-    : time_(0.0),
-      config_(config_filename),
-      universe_(config_.num_stars(), config_.radius_universe()),
-      factory_() {
-    events_.emplace(new CivilizationBirth(0.0, &factory_));
-  }
+  Simulator(const std::string& config_filename);
 
   void Run();
 
  private:
-  double time_;
   Config config_;
+  std::default_random_engine generator_;
+  StarFactory star_factory_;
+  CivilizationFactory civilization_factory_;
+  CivilizationBirthHandler civilization_birth_handler_;
+  CivilizationDeathHandler civilization_death_handler_;
   Universe universe_;
-  CivilizationFactory factory_;
   std::priority_queue<std::unique_ptr<Event>,
       std::vector<std::unique_ptr<Event>>, CompareEvents> events_;
 };

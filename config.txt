@@ -1,3 +1,6 @@
-end_time: 100.0
+end_time: 1000000.0
 num_stars: 100
 radius_universe: 10000.0
+lifespan_mean: 100000.0
+lifespan_stddev: 50000.0
+civilization_birth_interval: 50000.0

@@ -1,58 +1,51 @@
 #include "event.h"
 
 #include <iomanip>
-#include <map>
+#include <sstream>
 
-Civilization CivilizationFactory::Create(const Universe& universe) {
-  const std::map<int, Star>& stars = universe.stars();
-  std::uniform_int_distribution<int> distribution(
-      stars.begin()->first, std::prev(stars.end())->first);
-  int star_id;
-  std::map<int, Star>::const_iterator star_it;
-  do {
-    star_id = distribution(generator_);
-    star_it = stars.find(star_id);
-  } while (star_it == stars.end() || star_it->second.resident() != -1);
-  return Civilization(next_id_++, star_id);
-}
-
-std::string Event::Print() {
+std::string Event::Print() const {
   std::stringstream stream;
   stream << "Year: " << std::fixed << std::setprecision(1) << timestamp_
          << "\tEvent: ";
   return stream.str();
 }
 
-std::vector<std::unique_ptr<Event>> CivilizationBirth::Process(
-    Universe* universe) {
+std::string CivilizationBirth::Print() const {
+  std::stringstream stream;
+  stream << Event::Print() << "CivilizationBirth, id: "
+         << dynamic_cast<CivilizationBirthHandler*>(handler_)->factory()->next_id();
+  return stream.str();
+}
+
+std::string CivilizationDeath::Print() const {
+  std::stringstream stream;
+  stream << Event::Print() << "CivilizationDeath, id: " << civilization_id_;
+  return stream.str();
+}
+
+std::vector<std::unique_ptr<Event>> CivilizationBirthHandler::Handle(
+    const std::unique_ptr<Event>& event, Universe* universe) {
   Civilization civilization = factory_->Create(*universe);
   universe->mutable_civilizations()
       ->insert({civilization.id(), civilization});
   universe->mutable_stars()
       ->at(civilization.residence()).set_resident(civilization.id());
+
   std::vector<std::unique_ptr<Event>> following_events;
   following_events.emplace_back(new CivilizationDeath(
-      timestamp_ + 5.0, civilization.id()));
+      event->timestamp() + civilization.lifespan(),
+      death_handler_, civilization.id()));
   following_events.emplace_back(new CivilizationBirth(
-      timestamp_ + 10.0, factory_));
+      event->timestamp() + distribution_(*generator_), this));
   return following_events;
 }
 
-std::string CivilizationBirth::Print() {
-  std::stringstream stream;
-  stream << Event::Print() << "CivilizationBirth, id: " << factory_->next_id();
-  return stream.str();
-}
-
-std::vector<std::unique_ptr<Event>> CivilizationDeath::Process(Universe* universe) {
-  int star_id = universe->civilizations().at(civilization_id_).residence();
+std::vector<std::unique_ptr<Event>> CivilizationDeathHandler::Handle(
+    const std::unique_ptr<Event>& event, Universe* universe) {
+  int civilization_id = dynamic_cast<CivilizationDeath*>(event.get())
+    ->civilization_id();
+  int star_id = universe->civilizations().at(civilization_id).residence();
   universe->mutable_stars()->at(star_id).set_resident(-1);
-  universe->mutable_civilizations()->erase(civilization_id_);
+  universe->mutable_civilizations()->erase(civilization_id);
   return {};
-}
-
-std::string CivilizationDeath::Print() {
-  std::stringstream stream;
-  stream << Event::Print() << "CivilizationDeath, id: " << civilization_id_;
-  return stream.str();
 }
