@@ -1,25 +1,27 @@
 #ifndef SIMULATOR_H_
 #define SIMULATOR_H_
 
+#include "event.h"
+#include "universe.h"
 #include <memory>
 #include <queue>
 #include <random>
 #include <string>
-#include "event.h"
-#include "universe.h"
 
 class Config {
- public:
-  Config(const std::string& config_filename);
+public:
+  Config(const std::string &config_filename);
 
   double end_time() const { return end_time_; }
   int num_stars() const { return num_stars_; }
   double radius_universe() const { return radius_universe_; }
   double lifespan_mean() const { return lifespan_mean_; }
   double lifespan_stddev() const { return lifespan_stddev_; }
-  double civilization_birth_interval() const { return civilization_birth_interval_; }
+  double civilization_birth_interval() const {
+    return civilization_birth_interval_;
+  }
 
- private:
+private:
   double end_time_;
   int num_stars_;
   double radius_universe_;
@@ -29,12 +31,12 @@ class Config {
 };
 
 class Simulator {
- public:
-  Simulator(const std::string& config_filename);
+public:
+  Simulator(const std::string &config_filename);
 
   void Run();
 
- private:
+private:
   Config config_;
   std::default_random_engine generator_;
   StarFactory star_factory_;
@@ -43,7 +45,8 @@ class Simulator {
   CivilizationDeathHandler civilization_death_handler_;
   Universe universe_;
   std::priority_queue<std::unique_ptr<Event>,
-      std::vector<std::unique_ptr<Event>>, CompareEvents> events_;
+                      std::vector<std::unique_ptr<Event>>, CompareEvents>
+      events_;
 };
 
 #endif

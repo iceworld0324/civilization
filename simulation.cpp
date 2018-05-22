@@ -1,7 +1,7 @@
-#include <iostream>
 #include "simulator.h"
+#include <iostream>
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
   if (argc != 2) {
     std::cout << "Usage: " << argv[0] << " <config_file>" << std::endl;
     return 1;

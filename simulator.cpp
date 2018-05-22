@@ -7,7 +7,7 @@
 
 constexpr char kSplitToken[] = ": ";
 
-Config::Config(const std::string& config_filename) {
+Config::Config(const std::string &config_filename) {
   std::ifstream config_file(config_filename);
   std::string line;
   while (std::getline(config_file, line)) {
@@ -30,13 +30,14 @@ Config::Config(const std::string& config_filename) {
   }
 }
 
-Simulator::Simulator(const std::string& config_filename)
-  : config_(config_filename),
-    star_factory_(config_.radius_universe(), &generator_),
-    civilization_factory_(config_.lifespan_mean(), config_.lifespan_stddev(),
-        &generator_),
-    civilization_birth_handler_(config_.civilization_birth_interval(),
-        &generator_, &civilization_factory_, &civilization_death_handler_) {
+Simulator::Simulator(const std::string &config_filename)
+    : config_(config_filename),
+      star_factory_(config_.radius_universe(), &generator_),
+      civilization_factory_(config_.lifespan_mean(), config_.lifespan_stddev(),
+                            &generator_),
+      civilization_birth_handler_(config_.civilization_birth_interval(),
+                                  &generator_, &civilization_factory_,
+                                  &civilization_death_handler_) {
   for (int i = 0; i < config_.num_stars(); i++) {
     Star star = star_factory_.Create();
     universe_.mutable_stars()->insert({star.id(), star});
@@ -46,12 +47,12 @@ Simulator::Simulator(const std::string& config_filename)
 
 void Simulator::Run() {
   while (!events_.empty() && events_.top()->timestamp() < config_.end_time()) {
-    const std::unique_ptr<Event>& event = events_.top();
+    const std::unique_ptr<Event> &event = events_.top();
     std::cout << event->Print() << std::endl;
     std::vector<std::unique_ptr<Event>> following_events =
-      event->handler()->Handle(event, &universe_);
+        event->handler()->Handle(event, &universe_);
     events_.pop();
-    for (std::unique_ptr<Event>& following_event : following_events) {
+    for (std::unique_ptr<Event> &following_event : following_events) {
       events_.push(std::move(following_event));
     }
   }

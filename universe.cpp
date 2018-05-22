@@ -7,8 +7,8 @@ Star StarFactory::Create() {
   return Star(next_id_++, Location(x, y, z));
 }
 
-Civilization CivilizationFactory::Create(const Universe& universe) {
-  const std::map<int, Star>& stars = universe.stars();
+Civilization CivilizationFactory::Create(const Universe &universe) {
+  const std::map<int, Star> &stars = universe.stars();
   std::uniform_int_distribution<int> star_id_distribution(
       stars.begin()->first, std::prev(stars.end())->first);
   int star_id;
