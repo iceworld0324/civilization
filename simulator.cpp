@@ -26,6 +26,12 @@ Config::Config(const std::string &config_filename) {
       lifespan_stddev_ = std::stod(value);
     } else if (key == "civilization_birth_interval") {
       civilization_birth_interval_ = std::stod(value);
+    } else if (key == "science_advance_one_prob") {
+      science_advance_one_prob_ = std::stod(value);
+    } else if (key == "science_advance_two_prob") {
+      science_advance_two_prob_ = std::stod(value);
+    } else if (key == "science_advance_interval") {
+      science_advance_interval_ = std::stod(value);
     }
   }
 }
@@ -37,12 +43,17 @@ Simulator::Simulator(const std::string &config_filename)
                             &generator_),
       civilization_birth_handler_(config_.civilization_birth_interval(),
                                   &generator_, &civilization_factory_,
-                                  &civilization_death_handler_) {
+                                  &civilization_death_handler_),
+      science_advance_handler_(config_.science_advance_interval(),
+                               {0, config_.science_advance_one_prob(),
+                                config_.science_advance_two_prob()},
+                               &generator_) {
   for (int i = 0; i < config_.num_stars(); i++) {
     Star star = star_factory_.Create();
     universe_.mutable_stars()->insert({star.id(), star});
   }
   events_.emplace(new CivilizationBirth(0.0, &civilization_birth_handler_));
+  events_.emplace(new ScienceAdvance(0.0, &science_advance_handler_, 0));
 }
 
 void Simulator::Run() {

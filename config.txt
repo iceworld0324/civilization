@@ -3,4 +3,7 @@ num_stars: 100
 radius_universe: 10000.0
 lifespan_mean: 100000.0
 lifespan_stddev: 50000.0
-civilization_birth_interval: 50000.0
+civilization_birth_interval: 40000.0
+science_advance_one_prob: 0.8
+science_advance_two_prob: 0.2
+science_advance_interval: 50000.0

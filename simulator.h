@@ -20,6 +20,9 @@ public:
   double civilization_birth_interval() const {
     return civilization_birth_interval_;
   }
+  double science_advance_one_prob() const { return science_advance_one_prob_; }
+  double science_advance_two_prob() const { return science_advance_two_prob_; }
+  double science_advance_interval() const { return science_advance_interval_; }
 
 private:
   double end_time_;
@@ -28,6 +31,9 @@ private:
   double lifespan_mean_;
   double lifespan_stddev_;
   double civilization_birth_interval_;
+  double science_advance_one_prob_;
+  double science_advance_two_prob_;
+  double science_advance_interval_;
 };
 
 class Simulator {
@@ -43,6 +49,7 @@ private:
   CivilizationFactory civilization_factory_;
   CivilizationBirthHandler civilization_birth_handler_;
   CivilizationDeathHandler civilization_death_handler_;
+  ScienceAdvanceHandler science_advance_handler_;
   Universe universe_;
   std::priority_queue<std::unique_ptr<Event>,
                       std::vector<std::unique_ptr<Event>>, CompareEvents>

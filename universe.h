@@ -32,16 +32,19 @@ private:
 class Civilization {
 public:
   Civilization(int id, int residence, double lifespan)
-      : id_(id), residence_(residence), lifespan_(lifespan) {}
+      : id_(id), residence_(residence), lifespan_(lifespan), science_level_(0) {
+  }
 
   int id() const { return id_; }
   int residence() const { return residence_; }
   double lifespan() const { return lifespan_; }
+  void advance_science(int level) { science_level_ += level; }
 
 private:
   int id_;
   int residence_;
   double lifespan_;
+  int science_level_;
 };
 
 class Universe {
