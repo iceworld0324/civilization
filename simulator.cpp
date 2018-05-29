@@ -53,7 +53,7 @@ Simulator::Simulator(const std::string &config_filename)
     universe_.mutable_stars()->insert({star.id(), star});
   }
   events_.emplace(new CivilizationBirth(0.0, &civilization_birth_handler_));
-  events_.emplace(new ScienceAdvance(0.0, &science_advance_handler_, 0));
+  events_.emplace(new ScienceAdvance(0.0, &science_advance_handler_, -1));
 }
 
 void Simulator::Run() {

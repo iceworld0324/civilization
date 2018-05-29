@@ -5,8 +5,8 @@
 
 std::string Event::Print() const {
   std::stringstream stream;
-  stream << "Year: " << std::fixed << std::setprecision(1) << timestamp_
-         << "\tEvent: ";
+  stream << "[Year] " << std::fixed << std::setprecision(1) << timestamp_
+         << "\t[Event] ";
   return stream.str();
 }
 
@@ -76,19 +76,24 @@ ScienceAdvanceHandler::Handle(const std::unique_ptr<Event> &event,
     civilization_it->second.advance_science(level);
   }
 
-  std::vector<std::unique_ptr<Event>> following_events;
+  int next_id = -1;
+  double interval = 1.0 / event_rate_;
   const auto &civilizations = universe->civilizations();
-  std::uniform_int_distribution<int> next_id_distribution(
-      civilizations.begin()->first, std::prev(civilizations.end())->first);
-  std::map<int, Civilization>::const_iterator next_it;
-  do {
-    int next_id = next_id_distribution(*generator_);
-    next_it = civilizations.find(next_id);
-  } while (next_it == civilizations.end());
-  std::exponential_distribution<double> interval_distribution(
-      event_rate_ * civilizations.size());
+  if (!civilizations.empty()) {
+    std::uniform_int_distribution<int> next_id_distribution(
+        civilizations.begin()->first, std::prev(civilizations.end())->first);
+    std::map<int, Civilization>::const_iterator next_it;
+    do {
+      next_id = next_id_distribution(*generator_);
+      next_it = civilizations.find(next_id);
+    } while (next_it == civilizations.end());
+    std::exponential_distribution<double> interval_distribution(
+        event_rate_ * civilizations.size());
+    interval = interval_distribution(*generator_);
+  }
+
+  std::vector<std::unique_ptr<Event>> following_events;
   following_events.emplace_back(new ScienceAdvance(
-      event->timestamp() + interval_distribution(*generator_), this,
-      next_it->first));
+      event->timestamp() + interval, this, next_id));
   return following_events;
 }
