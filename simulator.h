@@ -23,6 +23,7 @@ public:
   double science_advance_one_prob() const { return science_advance_one_prob_; }
   double science_advance_two_prob() const { return science_advance_two_prob_; }
   double science_advance_interval() const { return science_advance_interval_; }
+  double self_broadcast_interval() const { return self_broadcast_interval_; }
 
 private:
   double end_time_;
@@ -34,6 +35,7 @@ private:
   double science_advance_one_prob_;
   double science_advance_two_prob_;
   double science_advance_interval_;
+  double self_broadcast_interval_;
 };
 
 class Simulator {
@@ -50,6 +52,7 @@ private:
   CivilizationBirthHandler civilization_birth_handler_;
   CivilizationDeathHandler civilization_death_handler_;
   ScienceAdvanceHandler science_advance_handler_;
+  SelfBroadcastHandler self_broadcast_handler_;
   Universe universe_;
   std::priority_queue<std::unique_ptr<Event>,
                       std::vector<std::unique_ptr<Event>>, CompareEvents>

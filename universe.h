@@ -31,24 +31,28 @@ private:
 
 class Civilization {
 public:
-  Civilization(int id, int residence, double lifespan)
-      : id_(id), residence_(residence), lifespan_(lifespan), science_level_(0) {
+  Civilization(int id, int residence, double lifespan, double extroversion)
+      : id_(id), residence_(residence), lifespan_(lifespan), science_level_(0), extroversion_(extroversion) {
   }
 
   int id() const { return id_; }
   int residence() const { return residence_; }
   double lifespan() const { return lifespan_; }
   void advance_science(int level) { science_level_ += level; }
+  double extroversion() const { return extroversion_; }
 
 private:
   int id_;
   int residence_;
   double lifespan_;
   int science_level_;
+  double extroversion_;
 };
 
 class Universe {
 public:
+  Universe(std::default_random_engine *generator) : generator_(generator) {}
+
   const std::map<int, Star> &stars() const { return stars_; }
   std::map<int, Star> *mutable_stars() { return &stars_; }
 
@@ -59,9 +63,12 @@ public:
     return &civilizations_;
   }
 
+  int RandomCivilization() const;
+
 private:
   std::map<int, Star> stars_;
   std::map<int, Civilization> civilizations_;
+  std::default_random_engine *generator_;
 };
 
 class StarFactory {
@@ -83,6 +90,7 @@ public:
   CivilizationFactory(double lifespan_mean, double lifespan_stddev,
                       std::default_random_engine *generator)
       : lifespan_distribution_(lifespan_mean, lifespan_stddev),
+        extroversion_distribution_(0.0, 1.0),
         generator_(generator), next_id_(0) {}
 
   Civilization Create(const Universe &universe);
@@ -91,6 +99,7 @@ public:
 
 private:
   std::normal_distribution<double> lifespan_distribution_;
+  std::uniform_real_distribution<double> extroversion_distribution_;
   std::default_random_engine *generator_;
   int next_id_;
 };

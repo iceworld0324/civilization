@@ -3,6 +3,18 @@
 #include <cstdlib>
 #include <iostream>
 
+int Universe::RandomCivilization() const {
+  int id = -1;
+  if (!civilizations_.empty()) {
+    std::uniform_int_distribution<int> id_distribution(
+        civilizations_.begin()->first, std::prev(civilizations_.end())->first);
+    do {
+      id = id_distribution(*generator_);
+    } while (civilizations_.find(id) == civilizations_.end());
+  }
+  return id;
+}
+
 Star StarFactory::Create() {
   double x = distribution_(*generator_);
   double y = distribution_(*generator_);
@@ -31,5 +43,6 @@ Civilization CivilizationFactory::Create(const Universe &universe) {
   } while (star_it == stars.end() || star_it->second.resident() != -1);
 
   double lifespan = lifespan_distribution_(*generator_);
-  return Civilization(next_id_++, star_it->first, lifespan);
+  double extroversion = extroversion_distribution_(*generator_);
+  return Civilization(next_id_++, star_it->first, lifespan, extroversion);
 }

@@ -7,3 +7,4 @@ civilization_birth_interval: 50000.0
 science_advance_one_prob: 0.8
 science_advance_two_prob: 0.2
 science_advance_interval: 50000.0
+self_broadcast_interval: 100000.0

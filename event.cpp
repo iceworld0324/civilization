@@ -31,6 +31,12 @@ std::string ScienceAdvance::Print() const {
   return stream.str();
 }
 
+std::string SelfBroadcast::Print() const {
+  std::stringstream stream;
+  stream << Event::Print() << "SelfBroadcast, id: " << civilization_id_;
+  return stream.str();
+}
+
 std::vector<std::unique_ptr<Event>>
 CivilizationBirthHandler::Handle(const std::unique_ptr<Event> &event,
                                  Universe *universe) {
@@ -67,33 +73,53 @@ CivilizationDeathHandler::Handle(const std::unique_ptr<Event> &event,
 std::vector<std::unique_ptr<Event>>
 ScienceAdvanceHandler::Handle(const std::unique_ptr<Event> &event,
                               Universe *universe) {
+  auto *civilizations = universe->mutable_civilizations();
   int civilization_id =
       dynamic_cast<ScienceAdvance *>(event.get())->civilization_id();
   auto civilization_it =
-      universe->mutable_civilizations()->find(civilization_id);
-  if (civilization_it != universe->mutable_civilizations()->end()) {
+      civilizations->find(civilization_id);
+  if (civilization_it != civilizations->end()) {
     int level = level_distribution_(*generator_);
     civilization_it->second.advance_science(level);
   }
 
-  int next_id = -1;
+  int next_id = universe->RandomCivilization();
   double interval = 1.0 / event_rate_;
+  if (!civilizations->empty()) {
+    std::exponential_distribution<double> interval_distribution(
+        event_rate_ * civilizations->size());
+    interval = interval_distribution(*generator_);
+  }
+  std::vector<std::unique_ptr<Event>> following_events;
+  following_events.emplace_back(new ScienceAdvance(
+      event->timestamp() + interval, this, next_id));
+  return following_events;
+}
+
+std::vector<std::unique_ptr<Event>>
+SelfBroadcastHandler::Handle(const std::unique_ptr<Event> &event,
+                              Universe *universe) {
+  std::vector<std::unique_ptr<Event>> following_events;
   const auto &civilizations = universe->civilizations();
+  int civilization_id =
+      dynamic_cast<SelfBroadcast *>(event.get())->civilization_id();
+  auto civilization_it =
+      civilizations.find(civilization_id);
+  if (civilization_it != civilizations.end()) {
+    double send_threshold = send_threshold_distribution_(*generator_);
+    if (send_threshold < civilization_it->second.extroversion()) {
+      // TODO: Create a Broadcast and all the ReceiveBroadcast events.
+    }
+  }
+
+  int next_id = universe->RandomCivilization();
+  double interval = 1.0 / event_rate_;
   if (!civilizations.empty()) {
-    std::uniform_int_distribution<int> next_id_distribution(
-        civilizations.begin()->first, std::prev(civilizations.end())->first);
-    std::map<int, Civilization>::const_iterator next_it;
-    do {
-      next_id = next_id_distribution(*generator_);
-      next_it = civilizations.find(next_id);
-    } while (next_it == civilizations.end());
     std::exponential_distribution<double> interval_distribution(
         event_rate_ * civilizations.size());
     interval = interval_distribution(*generator_);
   }
-
-  std::vector<std::unique_ptr<Event>> following_events;
-  following_events.emplace_back(new ScienceAdvance(
+  following_events.emplace_back(new SelfBroadcast(
       event->timestamp() + interval, this, next_id));
   return following_events;
 }

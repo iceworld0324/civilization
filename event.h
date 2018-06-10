@@ -70,6 +70,19 @@ private:
   int civilization_id_;
 };
 
+class SelfBroadcast : public Event {
+public:
+  SelfBroadcast(double timestamp, EventHandler *handler, int civilization_id)
+      : Event(timestamp, handler), civilization_id_(civilization_id) {}
+
+  std::string Print() const;
+
+  int civilization_id() const { return civilization_id_; }
+
+private:
+  int civilization_id_;
+};
+
 class EventHandler {
 public:
   virtual std::vector<std::unique_ptr<Event>>
@@ -117,6 +130,22 @@ public:
 private:
   double event_rate_;
   std::discrete_distribution<int> level_distribution_;
+  std::default_random_engine *generator_;
+};
+
+class SelfBroadcastHandler : public EventHandler {
+public:
+  SelfBroadcastHandler(double event_interval,
+      std::default_random_engine *generator)
+      : event_rate_(1.0 / event_interval),
+        send_threshold_distribution_(0.0, 1.0), generator_(generator) {}
+
+  std::vector<std::unique_ptr<Event>>
+  Handle(const std::unique_ptr<Event> &event, Universe *universe);
+
+private:
+  double event_rate_;
+  std::uniform_real_distribution<double> send_threshold_distribution_;
   std::default_random_engine *generator_;
 };
 

@@ -32,6 +32,8 @@ Config::Config(const std::string &config_filename) {
       science_advance_two_prob_ = std::stod(value);
     } else if (key == "science_advance_interval") {
       science_advance_interval_ = std::stod(value);
+    } else if (key == "self_broadcast_interval") {
+      self_broadcast_interval_ = std::stod(value);
     }
   }
 }
@@ -47,13 +49,16 @@ Simulator::Simulator(const std::string &config_filename)
       science_advance_handler_(config_.science_advance_interval(),
                                {0, config_.science_advance_one_prob(),
                                 config_.science_advance_two_prob()},
-                               &generator_) {
+                               &generator_),
+      self_broadcast_handler_(config_.self_broadcast_interval(), &generator_),
+      universe_(&generator_) {
   for (int i = 0; i < config_.num_stars(); i++) {
     Star star = star_factory_.Create();
     universe_.mutable_stars()->insert({star.id(), star});
   }
   events_.emplace(new CivilizationBirth(0.0, &civilization_birth_handler_));
   events_.emplace(new ScienceAdvance(0.0, &science_advance_handler_, -1));
+  events_.emplace(new SelfBroadcast(0.0, &self_broadcast_handler_, -1));
 }
 
 void Simulator::Run() {
