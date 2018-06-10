@@ -76,8 +76,7 @@ ScienceAdvanceHandler::Handle(const std::unique_ptr<Event> &event,
   auto *civilizations = universe->mutable_civilizations();
   int civilization_id =
       dynamic_cast<ScienceAdvance *>(event.get())->civilization_id();
-  auto civilization_it =
-      civilizations->find(civilization_id);
+  auto civilization_it = civilizations->find(civilization_id);
   if (civilization_it != civilizations->end()) {
     int level = level_distribution_(*generator_);
     civilization_it->second.advance_science(level);
@@ -91,20 +90,19 @@ ScienceAdvanceHandler::Handle(const std::unique_ptr<Event> &event,
     interval = interval_distribution(*generator_);
   }
   std::vector<std::unique_ptr<Event>> following_events;
-  following_events.emplace_back(new ScienceAdvance(
-      event->timestamp() + interval, this, next_id));
+  following_events.emplace_back(
+      new ScienceAdvance(event->timestamp() + interval, this, next_id));
   return following_events;
 }
 
 std::vector<std::unique_ptr<Event>>
 SelfBroadcastHandler::Handle(const std::unique_ptr<Event> &event,
-                              Universe *universe) {
+                             Universe *universe) {
   std::vector<std::unique_ptr<Event>> following_events;
   const auto &civilizations = universe->civilizations();
   int civilization_id =
       dynamic_cast<SelfBroadcast *>(event.get())->civilization_id();
-  auto civilization_it =
-      civilizations.find(civilization_id);
+  auto civilization_it = civilizations.find(civilization_id);
   if (civilization_it != civilizations.end()) {
     double send_threshold = send_threshold_distribution_(*generator_);
     if (send_threshold < civilization_it->second.extroversion()) {
@@ -119,7 +117,7 @@ SelfBroadcastHandler::Handle(const std::unique_ptr<Event> &event,
         event_rate_ * civilizations.size());
     interval = interval_distribution(*generator_);
   }
-  following_events.emplace_back(new SelfBroadcast(
-      event->timestamp() + interval, this, next_id));
+  following_events.emplace_back(
+      new SelfBroadcast(event->timestamp() + interval, this, next_id));
   return following_events;
 }

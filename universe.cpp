@@ -28,9 +28,10 @@ Civilization CivilizationFactory::Create(const Universe &universe) {
     std::cout << "[Error] Universe has no star." << std::endl;
     exit(EXIT_FAILURE);
   }
-  double density = (double)universe.civilizations().size() / stars.size(); 
+  double density = (double)universe.civilizations().size() / stars.size();
   if (density > 0.95) {
-    std::cout << "[Error] Civilization density is too high: " << density << std::endl;
+    std::cout << "[Error] Civilization density is too high: " << density
+              << std::endl;
     exit(EXIT_FAILURE);
   }
 

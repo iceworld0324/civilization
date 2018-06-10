@@ -32,8 +32,8 @@ private:
 class Civilization {
 public:
   Civilization(int id, int residence, double lifespan, double extroversion)
-      : id_(id), residence_(residence), lifespan_(lifespan), science_level_(0), extroversion_(extroversion) {
-  }
+      : id_(id), residence_(residence), lifespan_(lifespan), science_level_(0),
+        extroversion_(extroversion) {}
 
   int id() const { return id_; }
   int residence() const { return residence_; }
@@ -90,8 +90,8 @@ public:
   CivilizationFactory(double lifespan_mean, double lifespan_stddev,
                       std::default_random_engine *generator)
       : lifespan_distribution_(lifespan_mean, lifespan_stddev),
-        extroversion_distribution_(0.0, 1.0),
-        generator_(generator), next_id_(0) {}
+        extroversion_distribution_(0.0, 1.0), generator_(generator),
+        next_id_(0) {}
 
   Civilization Create(const Universe &universe);
 

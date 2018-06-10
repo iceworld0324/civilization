@@ -136,7 +136,7 @@ private:
 class SelfBroadcastHandler : public EventHandler {
 public:
   SelfBroadcastHandler(double event_interval,
-      std::default_random_engine *generator)
+                       std::default_random_engine *generator)
       : event_rate_(1.0 / event_interval),
         send_threshold_distribution_(0.0, 1.0), generator_(generator) {}
 
